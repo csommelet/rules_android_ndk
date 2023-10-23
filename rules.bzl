@@ -23,7 +23,14 @@ def _android_ndk_repository_impl(ctx):
     Returns:
         A final dict of configuration attributes and values.
     """
-    ndk_path = ctx.attr.path or ctx.os.environ.get("ANDROID_NDK_HOME", None)
+    if ctx.os.name == "linux":
+        ndk_label = "@android_ndk_linux//:WORKSPACE"
+    elif ctx.os.name == "mac os x":
+        ndk_label = "@android_ndk_macos//:WORKSPACE"
+    else:
+        fail("Unsupported operating system: " + ctx.os.name)
+
+    ndk_path = ctx.attr.path or str(ctx.path(Label(ndk_label)).dirname) or ctx.os.environ.get("ANDROID_NDK_HOME", None)
     if not ndk_path:
         fail("Either the ANDROID_NDK_HOME environment variable or the " +
              "path attribute of android_ndk_repository must be set.")
