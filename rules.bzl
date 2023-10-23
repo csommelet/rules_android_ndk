@@ -36,12 +36,16 @@ def _android_ndk_repository_impl(ctx):
              "path attribute of android_ndk_repository must be set.")
 
     if ctx.os.name == "linux":
-        clang_directory = "toolchains/llvm/prebuilt/linux-x86_64"
+        platform_directory = "linux-x86_64"
     elif ctx.os.name == "mac os x":
         # Note: darwin-x86_64 does indeed contain fat binaries with arm64 slices, too.
-        clang_directory = "toolchains/llvm/prebuilt/darwin-x86_64"
+        platform_directory = "darwin-x86_64"
     else:
         fail("Unsupported operating system: " + ctx.os.name)
+
+    clang_directory = "toolchains/llvm/prebuilt/%s" % platform_directory
+
+    shader_tools_directory = "shader-tools/%s" % platform_directory
 
     sysroot_directory = "%s/sysroot" % clang_directory
 
@@ -63,6 +67,7 @@ def _android_ndk_repository_impl(ctx):
         Label("//:BUILD.ndk_root.tpl"),
         {
             "{clang_directory}": clang_directory,
+            "{shader_tools_directory}": shader_tools_directory,
         },
         executable = False,
     )
@@ -92,6 +97,14 @@ def _android_ndk_repository_impl(ctx):
         Label("//:BUILD.ndk_sysroot.tpl"),
         {
             "{api_level}": str(api_level),
+        },
+        executable = False,
+    )
+
+    ctx.template(
+        "%s/BUILD" % shader_tools_directory,
+        Label("//:BUILD.ndk_shader_tools.tpl"),
+        {
         },
         executable = False,
     )

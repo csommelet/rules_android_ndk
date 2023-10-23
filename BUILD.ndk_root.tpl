@@ -36,3 +36,8 @@ cc_library(
     ]),
     linkopts = ["-ldl"],
 )
+
+alias(
+    name = "shader_toolchain",
+    actual = "//{shader_tools_directory}:shader_toolchain",
+)
