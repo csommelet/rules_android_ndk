@@ -49,7 +49,7 @@ def _android_ndk_repository_impl(ctx):
 
     sysroot_directory = "%s/sysroot" % clang_directory
 
-    _create_symlinks(ctx, ndk_path, clang_directory, sysroot_directory)
+    _create_symlinks(ctx, ndk_path, clang_directory, sysroot_directory, shader_tools_directory)
 
     api_level = ctx.attr.api_level or 31
 
@@ -81,6 +81,14 @@ def _android_ndk_repository_impl(ctx):
     )
 
     ctx.template(
+        "shader_tools.bzl",
+        Label("//:shader_tools.bzl.tpl"),
+        {
+        },
+        executable = False,
+    )
+
+    ctx.template(
         "%s/BUILD" % clang_directory,
         Label("//:BUILD.ndk_clang.tpl"),
         {
@@ -101,17 +109,9 @@ def _android_ndk_repository_impl(ctx):
         executable = False,
     )
 
-    ctx.template(
-        "%s/BUILD" % shader_tools_directory,
-        Label("//:BUILD.ndk_shader_tools.tpl"),
-        {
-        },
-        executable = False,
-    )
-
 # Manually create a partial symlink tree of the NDK to avoid creating BUILD
 # files in the real NDK directory.
-def _create_symlinks(ctx, ndk_path, clang_directory, sysroot_directory):
+def _create_symlinks(ctx, ndk_path, clang_directory, sysroot_directory, shader_tools_directory):
     # Path needs to end in "/" for replace() below to work
     if not ndk_path.endswith("/"):
         ndk_path = ndk_path + "/"
@@ -126,6 +126,8 @@ def _create_symlinks(ctx, ndk_path, clang_directory, sysroot_directory):
     for p in ctx.path(ndk_path + sysroot_directory).readdir():
         repo_relative_path = str(p).replace(ndk_path, "")
         ctx.symlink(p, repo_relative_path)
+
+    ctx.symlink(ndk_path + "shader-tools", "shader-tools")
 
     ctx.symlink(ndk_path + "sources", "sources")
 

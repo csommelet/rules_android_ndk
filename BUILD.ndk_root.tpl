@@ -3,6 +3,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("//:target_systems.bzl", "CPU_CONSTRAINT", "TARGET_SYSTEM_NAMES")
+load("//:shader_tools.bzl", "glsl_toolchain")
 
 exports_files(["target_systems.bzl"])
 
@@ -37,7 +38,17 @@ cc_library(
     linkopts = ["-ldl"],
 )
 
-alias(
+toolchain_type(
+    name = "toolchain_type",
+)
+
+glsl_toolchain(
+    name = "glsl_toolchain",
+    glslc = "//:{shader_tools_directory}/glslc",
+)
+
+toolchain(
     name = "shader_toolchain",
-    actual = "//{shader_tools_directory}:shader_toolchain",
+    toolchain = ":glsl_toolchain",
+    toolchain_type = ":toolchain_type",
 )
