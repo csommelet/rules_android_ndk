@@ -70,7 +70,7 @@ def _glsl_header_library(ctx):
     ]
 
 def _glsl_shader(ctx):
-    toolchain = ctx.toolchains["@rules_vulkan//glsl:toolchain_type"]
+    toolchain = ctx.toolchains["//:toolchain_type"]
 
     shader = ctx.file.shader
 
@@ -93,6 +93,7 @@ def _glsl_shader(ctx):
 
     args.add("-o", spirv)
     args.add(shader.path)
+    args.add_all(ctx.attr.args)
 
     ctx.actions.run(
         inputs = inputs,
@@ -127,6 +128,7 @@ glsl_shader = rule(
     attrs = {
         "shader": attr.label(allow_single_file = [".vert", ".frag", ".tesc", ".tese", ".geom", ".comp"]),
         "deps": attr.label_list(providers = [GlslInfo]),
+        "args": attr.string_list(),
     },
     toolchains = ["//:toolchain_type"],
     provides = [DefaultInfo],

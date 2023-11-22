@@ -52,3 +52,17 @@ toolchain(
     toolchain = ":glsl_toolchain",
     toolchain_type = ":toolchain_type",
 )
+
+cc_library(
+    name = "vulkan_hpp",
+    srcs = glob([
+        "sources/third_party/vulkan/src/include/**/*",
+    ]),
+    hdrs = glob([
+        "sources/third_party/vulkan/src/include/**/*",
+    ]),
+    includes = [
+        "sources/third_party/vulkan/src/include",
+    ],
+)
+
